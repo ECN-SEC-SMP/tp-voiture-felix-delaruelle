@@ -24,19 +24,41 @@ def getVideoProperties(cap):
     return frameCount, fps, duration, videoHeight, videoWidth
 
 def calculateAverageImages(M, imagesArrayGray, imWidth, imHeight):
-    meanImage = np.empty((imWidth, imWidth), np.dtype('uint8'))
+    meanImage = np.empty((imHeight, imWidth), np.dtype('uint8'))
     mean = 0
     for i in range(imHeight):
         for j in range(imWidth):
             for k in range(M):
-                imagesArrayGray[k][i][j] # renvoie la valeur du niveau de gris du pixel
-                pixGrayLevel = imagesArrayGray[k][i][j]
+                pixGrayLevel = imagesArrayGray[k][i][j]  # renvoie la valeur du niveau de gris du pixel
                 mean += pixGrayLevel
 
-            mean = mean/M
+            mean = mean / M
             meanImage[i][j] = mean
 
     return meanImage
+
+def detectRoad(meanImage, imageSequence, threshold, imWidth, imHeight, imCount):
+    mask = np.empty((imHeight, imWidth), np.dtype('uint8'))
+    res = np.empty((imCount, imHeight, imWidth), np.dtype('uint8'))
+    
+    for i in range(imHeight):
+        for j in range(imWidth):
+            meanDifference = 0
+            for k in range(imCount):
+                pixMeanImg = meanImage[i][j]
+                pixImage = imageSequence[k][i][j]
+                meanDifference += abs(int(pixImage) - int(pixMeanImg))
+            
+            meanDifference = meanDifference / imCount
+            if meanDifference < threshold:
+                mask[i][j] = 0
+            else:
+                mask[i][j] = 255
+
+    for k in range(imCount):
+        res[k] = cv.bitwise_and(imageSequence[k], imageSequence[k], mask=mask)
+
+    return res
 
 def main():
     # Define variables
@@ -59,6 +81,7 @@ def main():
     #cv.namedWindow("Gray video")
     cv.namedWindow('test numpy array display')
     cv.namedWindow('Mean image')
+    cv.namedWindow('res')
     
     # A key that we use to store the user keyboard input
     key = None
@@ -82,8 +105,11 @@ def main():
         # Look for pollKey documentation
         key = cv.pollKey()
 
-    meanImage = calculateAverageImages(200, imagesArrayGray, videoWidth, videoHeight)
+    meanImage = calculateAverageImages(400, imagesArrayGray, videoWidth, videoHeight)
     cv.imshow('Mean image', meanImage)
+
+    res = detectRoad(meanImage, imagesArrayGray, 22, videoWidth, videoHeight, 400)
+    cv.imshow('res', res[50])
 
     cv.waitKey(10000)
 
