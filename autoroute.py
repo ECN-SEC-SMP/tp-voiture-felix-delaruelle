@@ -25,15 +25,16 @@ def getVideoProperties(cap):
 
 def calculateAverageImages(M, imagesArrayGray, imWidth, imHeight):
     meanImage = np.empty((imHeight, imWidth), np.dtype('uint8'))
-    mean = 0
+    
     for i in range(imHeight):
         for j in range(imWidth):
+            mean = 0
             for k in range(M):
                 pixGrayLevel = imagesArrayGray[k][i][j]  # renvoie la valeur du niveau de gris du pixel
                 mean += pixGrayLevel
 
             mean = mean / M
-            meanImage[i][j] = mean
+            meanImage[i][j] = int(mean)
 
     return meanImage
 
@@ -57,6 +58,24 @@ def detectRoad(meanImage, imageSequence, threshold, imWidth, imHeight, imCount):
 
     for k in range(imCount):
         res[k] = cv.bitwise_and(imageSequence[k], imageSequence[k], mask=mask)
+
+    return res
+
+def detectCars(meanImage, imageSequence, threshold, imWidth, imHeight, imCount):
+    res = np.empty((imCount, imHeight, imWidth), np.dtype('uint8'))
+    
+    for k in range(imCount):
+        for i in range(imHeight):
+            for j in range(imWidth):
+                pixMeanImg = meanImage[i][j]
+                pixImage = imageSequence[k][i][j]
+                difference = abs(int(pixImage) - int(pixMeanImg))
+                
+                # Les voitures ont une grande différence avec la moyenne
+                if difference > threshold:
+                    res[k][i][j] = imageSequence[k][i][j]  # Garder le pixel original
+                else:
+                    res[k][i][j] = 0  # Mettre en noir (décor statique)
 
     return res
 
@@ -108,8 +127,19 @@ def main():
     meanImage = calculateAverageImages(400, imagesArrayGray, videoWidth, videoHeight)
     cv.imshow('Mean image', meanImage)
 
-    res = detectRoad(meanImage, imagesArrayGray, 22, videoWidth, videoHeight, 400)
-    cv.imshow('res', res[50])
+    # Détection de la route
+    resRoad = detectRoad(meanImage, imagesArrayGray, 22, videoWidth, videoHeight, 50)
+    
+    # Détection des voitures
+    resCars = detectCars(meanImage, imagesArrayGray, 200, videoWidth, videoHeight, 50)
+    
+    # Affichage de la séquence des voitures détectées
+    cv.namedWindow('Cars Detection')
+    for i in range(len(resCars)):
+        cv.imshow('Cars Detection', resCars[i])
+        key = cv.waitKey(int(1000/fps))
+        if key == ESC_KEY or key == Q_KEY:
+            break
 
     cv.waitKey(10000)
 
