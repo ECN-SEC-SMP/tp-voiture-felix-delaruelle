@@ -21,6 +21,10 @@ def main():
         print("capture opening has failed we cannot do anything :'(")
         sys.exit()
 
+    print("N : " + str(cap.get(cv.CAP_PROP_FRAME_COUNT)))
+    print("length : " + str(cap.get(cv.CAP_PROP_FRAME_COUNT) / cap.get(cv.CAP_PROP_FPS)))
+    print("width : " + str(cap.get(cv.CAP_PROP_FRAME_WIDTH)))
+    print("height : " + str(cap.get(cv.CAP_PROP_FRAME_HEIGHT)))
     #Creating a window to display some images
     cv.namedWindow("Original video")
     cv.namedWindow("Gray video")
