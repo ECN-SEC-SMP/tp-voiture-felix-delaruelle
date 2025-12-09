@@ -9,7 +9,7 @@ Q_KEY = 113
 
 def main():
     # Define variables
-    filename = sys.argv[1] if len(sys.argv) > 1 else 'video/video.avi'
+    filename = sys.argv[1] if len(sys.argv) > 1 else 'video.avi'
 
     # Reading the image (and forcing it to grayscale)
     cap = cv.VideoCapture(filename)
