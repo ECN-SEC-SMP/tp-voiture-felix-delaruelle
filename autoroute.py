@@ -1,6 +1,7 @@
 # openCV import
 import cv2 as cv
 import sys
+import time
 
 
 # Keycode definitions
@@ -45,13 +46,10 @@ def main():
     
     while key != ESC_KEY and key!= Q_KEY:
         ret, im = cap.read()
-        # Turning im into grayscale and storing it in imGray
-        # TODO
-        
-        
+        imGray = cv.cvtColor(im, cv.COLOR_BGR2GRAY)  
         cv.imshow("Original video", im)
-        #imshow("Gray video", imGray)
-        
+        cv.imshow("Gray video", imGray)
+
         # Look for pollKey documentation
         key = cv.pollKey()
     
