@@ -23,6 +23,21 @@ def getVideoProperties(cap):
 
     return frameCount, fps, duration, videoHeight, videoWidth
 
+def calculateAverageImages(M, imagesArrayGray, imWidth, imHeight):
+    meanImage = np.empty((imWidth, imWidth), np.dtype('uint8'))
+    mean = 0
+    for i in range(imHeight):
+        for j in range(imWidth):
+            for k in range(M):
+                imagesArrayGray[k][i][j] # renvoie la valeur du niveau de gris du pixel
+                pixGrayLevel = imagesArrayGray[k][i][j]
+                mean += pixGrayLevel
+
+            mean = mean/M
+            meanImage[i][j] = mean
+
+    return meanImage
+
 def main():
     # Define variables
     filename = sys.argv[1] if len(sys.argv) > 1 else '../video/video.avi'
@@ -43,11 +58,12 @@ def main():
     #cv.namedWindow("Original video")
     #cv.namedWindow("Gray video")
     cv.namedWindow('test numpy array display')
+    cv.namedWindow('Mean image')
     
     # A key that we use to store the user keyboard input
     key = None
     # Waiting for the user to press ESCAPE before exiting the application
-    imagesArray = np.empty((frameCount, videoHeight, videoWidth, 3), np.dtype('uint8'))
+    imagesArrayGray = np.empty((frameCount, videoHeight, videoWidth), np.dtype('uint8'))
     fc = 0
 
     while key != ESC_KEY and key!= Q_KEY:
@@ -58,13 +74,18 @@ def main():
         #cv.imshow("Original video", im)
         #cv.imshow("Gray video", imGray)
 
-        imagesArray[fc] = im
-        cv.imshow('test numpy array display', imagesArray[fc])
+        imagesArrayGray[fc] = imGray
+        cv.imshow('test numpy array display', imagesArrayGray[fc])
 
         fc += 1
 
         # Look for pollKey documentation
         key = cv.pollKey()
+
+    meanImage = calculateAverageImages(200, imagesArrayGray, videoWidth, videoHeight)
+    cv.imshow('Mean image', meanImage)
+
+    cv.waitKey(10000)
 
     # release cap
     cap.release()
