@@ -7,12 +7,26 @@ import sys
 ESC_KEY = 27
 Q_KEY = 113
 
+def getVideoProperties(cap):
+    nbFrame = int(cap.get(cv.CAP_PROP_FRAME_COUNT))
+    fps = int(cap.get(cv.CAP_PROP_FPS))
+    duration = nbFrame/fps
+    videoHeight = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
+    videoWidth = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
+
+    print("Nombre d'images total : " , nbFrame)
+    print("Nombre d'images par seconde : ", fps)
+    print("Durée de la vidéo : ", duration)
+    print("Résolution de la vidéo : " + str(videoWidth) + "x" + str(videoHeight))
+
 def main():
     # Define variables
-    filename = sys.argv[1] if len(sys.argv) > 1 else 'video/video.avi'
+    filename = sys.argv[1] if len(sys.argv) > 1 else '../video/video.avi'
 
     # Reading the image (and forcing it to grayscale)
     cap = cv.VideoCapture(filename)
+
+    getVideoProperties(cap)
 
     run = cap.isOpened()
    # Making sure the capture has opened successfully
